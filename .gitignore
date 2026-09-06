@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Environment variables - NEVER commit these (contain secret API keys)
+.env
+.env.local
+server/.env
+
+# Build output
+dist/
+build/
+
+# Local SQLite database (dev data only, not source code)
+server/profileiq.db
+server/profileiq.db-shm
+server/profileiq.db-wal
+
+# Editor/OS files
+.vscode/
+desktop.ini
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
