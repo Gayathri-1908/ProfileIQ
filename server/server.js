@@ -13,7 +13,14 @@ const linkedinChatRoutes = require("./linkedin-chat");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://profileiq-phi.vercel.app",
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 app.use(express.json());
 
 // --- Auth routes (signup/login) - SQLite backed ---
