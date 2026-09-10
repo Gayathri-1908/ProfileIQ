@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Sparkles, LogIn, LogOut, Menu, X } from 'lucide-react';
+import { Sparkles, LogIn, LogOut, Menu, X, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 import { useState } from 'react';
@@ -159,6 +159,21 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-white/10 py-4">
+
+            {/* Mobile "logged in as" greeting - shown only when authenticated */}
+            {isAuthenticated && (
+              <div className="flex items-center gap-2 px-3 pb-3 mb-2 border-b border-white/10">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                  <User className="w-4 h-4 text-white/80" />
+                </div>
+                <div>
+                  <p className="text-xs text-white/50">Logged in as</p>
+                  <p className="text-sm font-semibold text-white">
+                    {user?.name}
+                  </p>
+                </div>
+              </div>
+            )}
 
             <nav className="flex flex-col gap-2">
 
