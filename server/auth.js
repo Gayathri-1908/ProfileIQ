@@ -14,6 +14,17 @@ const generateToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   });
 
+// Prevent ANY caching (browser, CDN, proxy) on auth routes.
+// Without this, a shared/intermediate cache can serve one user's
+// response to a different user's request for the same URL,
+// causing cross-user data leaks (e.g. wrong name showing after login).
+router.use((req, res, next) => {
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+  next();
+});
+
 /* ===========================
    SIGNUP
 =========================== */
