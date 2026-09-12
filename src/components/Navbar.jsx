@@ -132,6 +132,25 @@ export default function Navbar() {
             </Link>
 
 
+            {/* Mobile-only: always-visible login indicator (avatar circle)
+                so users can tell they're logged in WITHOUT opening the menu */}
+            {isAuthenticated && (
+              <div
+                className="
+                  sm:hidden
+                  w-8 h-8 rounded-full
+                  bg-white/15
+                  flex items-center justify-center
+                  text-white text-xs font-bold
+                  shrink-0
+                "
+                title={`Logged in as ${user?.name}`}
+              >
+                {user?.name?.charAt(0)?.toUpperCase() || <User className="w-4 h-4" />}
+              </div>
+            )}
+
+
             {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

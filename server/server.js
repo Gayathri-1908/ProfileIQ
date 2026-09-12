@@ -9,6 +9,7 @@ const Groq = require("groq-sdk");
 const authRoutes = require("./auth");
 const contactRoutes = require("./contact");
 const linkedinChatRoutes = require("./linkedin-chat");
+const { maskPII, unmaskPII } = require("./pii");
 
 
 const app = express();
@@ -83,20 +84,30 @@ function cleanExtractedText(text) {
     .trim();
 }
 
-// Shared analysis function used by both routes below
+// Shared analysis function used by both routes below.
+// Masks detectable PII (email, phone, LinkedIn/GitHub URLs) before sending
+// text to the third-party AI provider, then unmasks the AI's response so
+// the user still sees their real contact info in the final result.
 async function runAnalysis(text, targetRole, sourceType) {
   const isLinkedIn = sourceType === "linkedin";
 
   const documentLabel = isLinkedIn ? "LinkedIn 'About' / Profile summary" : "Resume";
 
+  // Mask PII before it ever leaves our server toward Groq
+  const { maskedText, map } = maskPII(text);
+
   const prompt = `
 You are an expert ATS resume reviewer and professional resume writer.
 
 Analyze the following ${documentLabel} text for the target role given below.
+Note: some contact details in the text below have been replaced with placeholders
+like [EMAIL_1], [PHONE_1], [LINKEDIN_1], [GITHUB_1] for privacy. Treat these
+placeholders as if they were the real contact info when writing rewritten
+sections (keep the placeholder text exactly as-is, do not remove or alter it).
 
 ${documentLabel}:
 """
-${text}
+${maskedText}
 """
 
 Target Role:
@@ -175,13 +186,17 @@ ${isLinkedIn ? '4. This is a LinkedIn "About" summary, NOT a full resume. Only f
     .replace(/```/g, "")
     .trim();
 
+  let parsed;
   try {
-    return JSON.parse(cleaned);
+    parsed = JSON.parse(cleaned);
   } catch (parseErr) {
     console.error("=== JSON PARSE FAILED ===");
     console.error("Raw AI response was:", response);
     throw new Error(`AI response was not valid JSON: ${parseErr.message}`);
   }
+
+  // Restore real contact info in the AI's response before returning to the user
+  return unmaskPII(parsed, map);
 }
 
 // Analyze Route - for LinkedIn / pasted text
